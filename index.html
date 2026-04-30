@@ -192,6 +192,7 @@ a:hover, .link:hover {
 .section:first-of-type {
   border-top: none;
   margin-top: 0;
+  padding-top: 1.25rem;
 }
 
 .section-title {
@@ -381,6 +382,19 @@ a:hover, .link:hover {
   color: var(--ink-muted);
   margin: 0 0 0.7rem;
 }
+
+/* Tiny external-link glyph — used inline inside an <a> to signal off-site */
+.link-ext {
+  font-size: 0.78em;
+  color: var(--ember-soft);
+  display: inline-block;
+  vertical-align: 0.08em;
+  margin-left: 0.12em;
+  font-style: normal;
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1), color 200ms ease;
+}
+
+a:hover .link-ext { color: var(--ember); transform: translate(2px, -2px); }
 
 /* =========== Publications =========== */
 
@@ -760,9 +774,173 @@ a:hover, .link:hover {
   background: var(--ember);
 }
 
-/* Hide side-nav on narrow screens — page is short enough that scrolling is fine */
+/* =========== Mobile / narrow-viewport nav =========== */
+/* Below 1100px, the side-nav becomes a compact sticky top bar */
+
 @media (max-width: 1100px) {
-  .side-nav { display: none; }
+  .side-nav {
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    background: rgba(246, 242, 234, 0.85);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.55rem 0;
+  }
+
+  .side-nav ul {
+    flex-direction: row;
+    gap: 1.25rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    /* Fade the edges so cut-off labels read as "scroll →", not "cut off" */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 1.25rem,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 1.25rem,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+  }
+  .side-nav ul::-webkit-scrollbar { display: none; }
+
+  .side-nav a {
+    padding: 0.2rem 0;
+    gap: 0;
+  }
+
+  .side-nav a:hover { transform: none; }
+
+  /* On mobile, drop the numerals and the sliding dash —
+     the labels themselves carry the weight */
+  .side-nav .nav-num,
+  .side-nav .nav-num::after { display: none; }
+
+  .side-nav .nav-label {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+    transition: color 200ms ease, border-color 200ms ease;
+  }
+
+  .side-nav a.is-active .nav-label {
+    color: var(--ember);
+    border-bottom-color: var(--ember);
+  }
+
+  .side-nav a:hover .nav-label { color: var(--ember); }
+
+  /* Push the masthead below the fixed nav bar, with breathing room */
+  main { padding-top: clamp(5rem, 14vw, 7rem); }
+}
+
+/* =========== Keyboard focus =========== */
+
+:focus { outline: none; }
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+a:focus-visible,
+.link:focus-visible,
+.pub-link:focus-visible,
+.project-link-inline:focus-visible {
+  outline: none;
+  border-bottom-color: var(--ember);
+  background-color: rgba(138, 58, 31, 0.10);
+}
+
+.pub-actions a:focus-visible {
+  outline: none;
+  color: var(--ember);
+  border-color: var(--ember);
+  background: rgba(138, 58, 31, 0.06);
+}
+
+.side-nav a:focus-visible {
+  outline: none;
+  color: var(--ember);
+}
+
+.side-nav a:focus-visible .nav-label {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* =========== Print =========== */
+
+@media print {
+  body {
+    background: #fff;
+    background-image: none;
+    color: #000;
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  main {
+    max-width: none;
+    margin: 0;
+    padding: 0.4in 0.5in;
+  }
+
+  .side-nav,
+  .colophon,
+  .dot { display: none !important; }
+
+  .avatar {
+    width: 1in;
+    height: 1in;
+    box-shadow: none;
+    margin-top: 0;
+  }
+
+  .name { font-size: 22pt; margin-bottom: 0.4rem; }
+  .tagline { font-size: 11pt; }
+  .locus { font-size: 8.5pt; }
+
+  .section { padding-top: 1.1rem; margin-top: 0.6rem; }
+  .section-title { font-size: 13pt; page-break-after: avoid; }
+
+  .entry-role,
+  .subentry-role,
+  .project-title,
+  .teaching-title,
+  .pub-title { font-size: 11pt; }
+
+  a, .link, .pub-link, .project-link-inline {
+    color: #000;
+    border-bottom: none;
+  }
+
+  .pub-actions { display: none; }
+
+  /* Avoid orphaned items breaking awkwardly across pages */
+  .masthead,
+  .section-title,
+  .entry,
+  .subentry,
+  .pub,
+  .project,
+  .teaching-item { page-break-inside: avoid; }
 }
 
 </style>
@@ -850,7 +1028,7 @@ a:hover, .link:hover {
                   <h4 class="subentry-role">Senior Research Engineer</h4>
                   <span class="subentry-dates">Mar 2025 &mdash; Present</span>
                 </div>
-                <p class="subentry-team"><a href="https://labs.google.com/cc/">Project CC</a> &middot; Language Applications</p>
+                <p class="subentry-team"><a href="https://labs.google.com/cc/" target="_blank" rel="noopener">Project CC<span class="link-ext" aria-hidden="true">↗</span></a> &middot; Language Applications</p>
                 <ul class="entry-points">
                   <li>Founding member of <em>Project CC</em>, a proactive, helpful AI assistant. Built the initial user-modeling layer: preference extraction, to-do detection, and the day-to-day prioritization that drives the flagship <em>Your Day Ahead</em> feature.</li>
                   <li>Enabled Google Workspace function calling for the agent and made tool-calling reliable across the Google surface area.</li>
@@ -1013,7 +1191,7 @@ a:hover, .link:hover {
       <ol class="pubs">
         <li class="pub">
           <p class="pub-title">
-            <a href="https://www.ijcai.org/proceedings/2017/144" class="pub-link">What can you do with a rock? Affordance extraction via word embeddings</a>
+            <a href="https://www.ijcai.org/proceedings/2017/144" class="pub-link" target="_blank" rel="noopener">What can you do with a rock? Affordance extraction via word embeddings</a>
           </p>
           <p class="pub-meta">N. Fulda, D. Ricks, B. Murdoch, D. Wingate &middot; <span class="venue">IJCAI</span> &middot; 2017</p>
           <p class="pub-blurb">
@@ -1028,15 +1206,15 @@ a:hover, .link:hover {
             Google DeepMind.
           </p>
           <p class="pub-actions">
-            <a href="https://arxiv.org/abs/1703.03429">arXiv</a>
-            <a href="https://www.ijcai.org/proceedings/2017/0144.pdf">PDF</a>
-            <a href="https://doi.org/10.24963/ijcai.2017/144">DOI</a>
+            <a href="https://arxiv.org/abs/1703.03429" target="_blank" rel="noopener">arXiv</a>
+            <a href="https://www.ijcai.org/proceedings/2017/0144.pdf" target="_blank" rel="noopener">PDF</a>
+            <a href="https://doi.org/10.24963/ijcai.2017/144" target="_blank" rel="noopener">DOI</a>
           </p>
         </li>
 
         <li class="pub">
           <p class="pub-title">
-            <a href="https://pcc4318.wordpress.com/wp-content/uploads/2018/08/nips_vigil_2017___informing_action_primitives_through_free_form_text.pdf" class="pub-link">Informing action primitives through free-form text</a>
+            <a href="https://pcc4318.wordpress.com/wp-content/uploads/2018/08/nips_vigil_2017___informing_action_primitives_through_free_form_text.pdf" class="pub-link" target="_blank" rel="noopener">Informing action primitives through free-form text</a>
           </p>
           <p class="pub-meta">N. Fulda, B. Murdoch, D. Ricks, D. Wingate &middot; <span class="venue">ViGIL Workshop, NeurIPS</span> &middot; 2017 &middot; <span class="award">Spotlight</span></p>
           <p class="pub-blurb">
@@ -1044,7 +1222,7 @@ a:hover, .link:hover {
             spaces based on free-form human input.
           </p>
           <p class="pub-actions">
-            <a href="https://pcc4318.wordpress.com/wp-content/uploads/2018/08/nips_vigil_2017___informing_action_primitives_through_free_form_text.pdf">PDF</a>
+            <a href="https://pcc4318.wordpress.com/wp-content/uploads/2018/08/nips_vigil_2017___informing_action_primitives_through_free_form_text.pdf" target="_blank" rel="noopener">PDF</a>
           </p>
         </li>
 
@@ -1068,14 +1246,14 @@ a:hover, .link:hover {
 
         <li class="pub">
           <p class="pub-title">
-            <a href="https://www.researchgate.net/publication/341956466_Getting_it_Right_the_Fourth_Time_Goal-driven_Behavior_Using_Vector_Space_Models" class="pub-link">Getting it right the fourth time: Goal-driven behavior using vector space models</a>
+            <a href="https://www.researchgate.net/publication/341956466_Getting_it_Right_the_Fourth_Time_Goal-driven_Behavior_Using_Vector_Space_Models" class="pub-link" target="_blank" rel="noopener">Getting it right the fourth time: Goal-driven behavior using vector space models</a>
           </p>
           <p class="pub-meta">N. Fulda, B. Murdoch, D. Ricks &middot; <span class="venue">IEEE SAMI</span> &middot; 2020</p>
           <p class="pub-blurb">
             A framework for communication between humans and reinforcement-learning agents.
           </p>
           <p class="pub-actions">
-            <a href="https://www.researchgate.net/publication/341956466_Getting_it_Right_the_Fourth_Time_Goal-driven_Behavior_Using_Vector_Space_Models">PDF</a>
+            <a href="https://www.researchgate.net/publication/341956466_Getting_it_Right_the_Fourth_Time_Goal-driven_Behavior_Using_Vector_Space_Models" target="_blank" rel="noopener">PDF</a>
           </p>
         </li>
       </ol>
@@ -1093,9 +1271,9 @@ a:hover, .link:hover {
             for the Alexa Prize Challenge. Our team won the $250K
             grant and a 1-in-9 spot to compete. I designed the NLG
             pipeline and led safety work on the dialogue corpus.
-            Coverage in <a href="https://www.ksl.com/article/46283718/byu-team-could-receive-500k-in-amazons-alexa-chatbot-challenge" class="project-link-inline">KSL</a>, 
-            <a href="https://www.fox13now.com/2018/04/26/team-at-byu-working-to-develop-artificial-intelligence-for-amazons-alexa" class="project-link-inline">Fox 13</a>, 
-            and <a href="https://www.youtube.com/watch?v=9bSVpv3aoww" class="project-link-inline">BYU News</a>.
+            Coverage in <a href="https://www.ksl.com/article/46283718/byu-team-could-receive-500k-in-amazons-alexa-chatbot-challenge" class="project-link-inline" target="_blank" rel="noopener">KSL</a>, 
+            <a href="https://www.fox13now.com/2018/04/26/team-at-byu-working-to-develop-artificial-intelligence-for-amazons-alexa" class="project-link-inline" target="_blank" rel="noopener">Fox 13</a>, 
+            and <a href="https://www.youtube.com/watch?v=9bSVpv3aoww" class="project-link-inline" target="_blank" rel="noopener">BYU News</a>.
           </p>
         </li>
 
@@ -1107,7 +1285,7 @@ a:hover, .link:hover {
             Artificial Text Player Competition in 2016 and 2017. CARL
             used affordance-based action selection over Word2Vec
             embeddings to navigate sparse-reward text worlds.
-            <a href="https://techcrunch.com/2017/09/19/verbal-common-sense-will-prevent-ais-from-harvesting-kings-and-unlocking-oranges/" class="project-link-inline">Coverage in TechCrunch</a>.
+            <a href="https://techcrunch.com/2017/09/19/verbal-common-sense-will-prevent-ais-from-harvesting-kings-and-unlocking-oranges/" class="project-link-inline" target="_blank" rel="noopener">Coverage in TechCrunch</a>.
           </p>
         </li>
 
@@ -1209,8 +1387,8 @@ a:hover, .link:hover {
 
       <ul class="links">
         <li><a class="link" href="mailto:ben.murdoch.94@gmail.com">ben.murdoch.94@gmail.com</a></li>
-        <li><a class="link" href="https://github.com/murdo25">github.com/murdo25</a></li>
-        <li><a class="link" href="https://www.linkedin.com/in/ben-murdoch/">linkedin.com/in/ben-murdoch</a></li>
+        <li><a class="link" href="https://github.com/murdo25" target="_blank" rel="noopener">github.com/murdo25</a></li>
+        <li><a class="link" href="https://www.linkedin.com/in/ben-murdoch/" target="_blank" rel="noopener">linkedin.com/in/ben-murdoch</a></li>
       </ul>
     </section>
 
@@ -1233,7 +1411,12 @@ a:hover, .link:hover {
 
       function setActive(id) {
         links.forEach(a => {
-          a.classList.toggle('is-active', a.dataset.section === id);
+          const isActive = a.dataset.section === id;
+          a.classList.toggle('is-active', isActive);
+          // On the mobile/horizontal layout, scroll the active label into view
+          if (isActive && window.matchMedia('(max-width: 1100px)').matches) {
+            a.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
         });
       }
 
